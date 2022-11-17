@@ -5,7 +5,7 @@
  * Copyright
  */
 
-package cn.cc;
+package cn.cc.bytebuffer;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,12 +14,18 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
+/**
+ * 2.1 buffer简介
+ */
 @Slf4j
-public class TestByteBuffer {
+public class Test1ByteBuffer {
 
     /**
-     *
-     *
+     * 1. 向 buffer 写入数据 ,channel.read(buffer)
+     * 2. 调用 flip() 切换至读模式
+     * 3. 从 buffer 读取数据，例如调用 buffer.get()
+     * 4. 调用 clear() 或compact() 切换至写模式
+     * 5. 重复 1-4 步骤
      */
     public static void main(String[] args) {
         // 获取FileChannel
