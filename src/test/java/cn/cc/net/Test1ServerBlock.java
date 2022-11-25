@@ -19,13 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 1. 服务端
+ * 1. 服务端-阻塞
  */
 @Slf4j
-public class Test1Server {
+public class Test1ServerBlock {
 
     public static void main(String[] args) {
-
+        singleThreadNio();
     }
 
     /**

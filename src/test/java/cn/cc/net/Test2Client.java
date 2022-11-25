@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 
+/**
+ * 2. 客户端
+ */
 @Slf4j
 public class Test2Client {
 
@@ -21,6 +24,7 @@ public class Test2Client {
             SocketChannel sc = SocketChannel.open();
             sc.connect(new InetSocketAddress("localhost", 8080));
             log.debug("waiting...");
+            // sc.write(Charset.defaultCharset().encode("str"))
         } catch (IOException e) {
             e.printStackTrace();
         }
