@@ -17,18 +17,13 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.Iterator;
 
 /**
- * 4. 服务端-selector
- * <p>
- * p30 用完key为什么要 remove
- * p31 处理客户端断开问题
  * p32-p35 处理消息边界
  */
 @Slf4j
-public class Test4ServerSelector {
+public class Test5ServerSelector {
 
     public static void main(String[] args) {
         // 非阻塞
@@ -38,15 +33,11 @@ public class Test4ServerSelector {
     /**
      * selector
      * <p>
-     * 事件
-     * accept       ServerSocketChannel 独有的事件，会在有连接请求时触发
-     * connect      客户端，连接建立后触发的事件
-     * read         可读事件，有数据了
-     * write        可写事件，
-     *
      * 问题
      * 1. ByteBuffer 空间不够要扩容
      * 2. ByteBuffer 不能做为局部变量
+     * 3. 每个 SocketChannel 拥有自己的 ByteBuffer attachment
+     * 4.
      */
     public static void singleThreadNio() {
 
@@ -93,8 +84,10 @@ public class Test4ServerSelector {
                         ServerSocketChannel channel = (ServerSocketChannel) key.channel();
                         SocketChannel sc = channel.accept();
                         sc.configureBlocking(false);
+                        // 将 buffer 作为附件 注册到 selector 里面去
+                        ByteBuffer buffer = ByteBuffer.allocate(16);
                         // 注册进 selector
-                        SelectionKey scKey = sc.register(selector, 0, null);
+                        SelectionKey scKey = sc.register(selector, 0, buffer);
                         // 关注读事件
                         scKey.interestOps(SelectionKey.OP_READ);
                         // 因为这个是服务 socketChannel 所以多个客户端连接打印的都一样
@@ -104,7 +97,9 @@ public class Test4ServerSelector {
                     } else if (key.isReadable()) { // read 事件
                         try {
                             SocketChannel channel = (SocketChannel) key.channel(); // 拿到触发事件的 channel
-                            ByteBuffer buffer = ByteBuffer.allocate(16);
+                            // 获取
+                            ByteBuffer buffer = (ByteBuffer)key.attachment();
+
                             int read = channel.read(buffer);
                             // 不管是不是断开都会发生 read 事件
                             // 如果是正常断开 read 的返回值是 -1

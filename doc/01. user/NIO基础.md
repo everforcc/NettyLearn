@@ -48,4 +48,8 @@
 - read
 - selectedKeys() 处理完之后必须 remove key否则，下次循环还会再处理一次
 
+### NIO基础-end
+
+- [ ] 看完后看一遍文档,然后再看 netty
+
 </span>
