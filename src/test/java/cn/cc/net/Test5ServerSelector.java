@@ -37,7 +37,8 @@ public class Test5ServerSelector {
      * 1. ByteBuffer 空间不够要扩容
      * 2. ByteBuffer 不能做为局部变量
      * 3. 每个 SocketChannel 拥有自己的 ByteBuffer attachment
-     * 4.
+     * 4. 不够就扩容 * 2
+     * 5. ByteBuffer 大小分配/扩大缩小
      */
     public static void singleThreadNio() {
 
@@ -97,8 +98,8 @@ public class Test5ServerSelector {
                     } else if (key.isReadable()) { // read 事件
                         try {
                             SocketChannel channel = (SocketChannel) key.channel(); // 拿到触发事件的 channel
-                            // 获取
-                            ByteBuffer buffer = (ByteBuffer)key.attachment();
+                            // 获取 buffer，不再是局部变量
+                            ByteBuffer buffer = (ByteBuffer) key.attachment();
 
                             int read = channel.read(buffer);
                             // 不管是不是断开都会发生 read 事件
@@ -112,6 +113,13 @@ public class Test5ServerSelector {
 //                                System.out.println(Charset.defaultCharset().decode(buffer));
                                 // 读差分后的消息
                                 split(buffer);
+                                if (buffer.position() == buffer.limit()) {
+                                    ByteBuffer newBuffer = ByteBuffer.allocate(buffer.capacity() * 2);
+                                    // 切换为读模式
+                                    buffer.flip();
+                                    newBuffer.put(buffer);
+                                    key.attach(newBuffer);
+                                }
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
