@@ -169,7 +169,6 @@ public class Test2MultiThreadServer {
                             buffer.flip();
                             ByteBufferUtil.debugAll(buffer);
                         }
-
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
