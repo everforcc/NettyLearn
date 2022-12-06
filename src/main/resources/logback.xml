@@ -28,6 +28,8 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
+    <!-- todo -->
+    <!-- 配置logger也在debug下 -->
     <logger name="io.netty.handler.logging.LoggingHandler" level="DEBUG" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
