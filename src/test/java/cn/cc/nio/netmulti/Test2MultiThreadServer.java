@@ -35,7 +35,7 @@ public class Test2MultiThreadServer {
      * Runtime.getRuntime().availableProcessors() 如果工作在 docker 容器下，因为容器不是物理隔离的，会拿到物理 cpu 个数，而不是容器申请时的个数
      * 这个问题直到 jdk 10 才修复，使用 jvm 参数 UseContainerSupport 配置， 默认开启
      * 如果是密集计算型应用可以这样，如果是io型的需要再计算
-     * todo 阿姆达尔定律
+     * 阿姆达尔定律
      */
     private static final int processor = Runtime.getRuntime().availableProcessors();
 
@@ -69,7 +69,6 @@ public class Test2MultiThreadServer {
             for (int i = 0; i < workers.length; i++) {
                 workers[i] = new Worker("worker-" + i);
             }
-            // todo api
             AtomicInteger index = new AtomicInteger();
             while (true) {
                 boss.select();
@@ -106,7 +105,6 @@ public class Test2MultiThreadServer {
         // 用队列来处理，在线程间传递消息
         private ConcurrentLinkedQueue<Runnable> queue = new ConcurrentLinkedQueue<>();
 
-        // todo
         // 线程对副本变量进行修改后，其他线程能够立刻同步刷新最新的数值。这个就是可见性。
         private volatile boolean start = false;
 

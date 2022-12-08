@@ -44,7 +44,7 @@ public class Test3EventLoopClient {
                     // 代表连接对象
                     .channel(); // [14]
             System.out.println(channel);
-            // todo 打断点可以设置主线程还是全部线程
+            // 打断点可以设置主线程还是全部线程
             // All Thread
             System.out.println();
         } catch (InterruptedException e) {

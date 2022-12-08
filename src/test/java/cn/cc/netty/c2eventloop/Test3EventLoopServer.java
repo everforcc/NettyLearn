@@ -33,7 +33,6 @@ public class Test3EventLoopServer {
         new ServerBootstrap()
                 // 职责划分的更细
                 // boss 和 worker
-                // todo ctrl+p
                 //.group(new NioEventLoopGroup())
                 // 参数一 boss accept，参数二 worker 读写操作
                 // 不需要设置线程数

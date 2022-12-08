@@ -45,7 +45,6 @@ public class Test2NettyFuture {
 //            e.printStackTrace();
 //        }
 
-        // todo 类结构分析
         // 异步
         future.addListener(new GenericFutureListener<Future<? super Integer>>() {
             // 异步接收结果

@@ -25,7 +25,7 @@ import java.net.InetSocketAddress;
 @Slf4j
 public class Test4ChannelFuture {
 
-    // todo Future/Promise 一般都是异步相关,用来处理结果
+    // Future/Promise 一般都是异步相关,用来处理结果
     public static void main(String[] args) {
         try {
             ChannelFuture channelFuture = new Bootstrap()

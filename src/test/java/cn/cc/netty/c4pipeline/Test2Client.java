@@ -23,8 +23,7 @@ import java.net.InetSocketAddress;
 import java.util.Scanner;
 
 /**
- * 6. 关闭 Future
- * 处理用户录入
+ * 2. 测试用的客户端
  */
 @Slf4j
 public class Test2Client {
@@ -38,7 +37,6 @@ public class Test2Client {
                         @Override //[12] 在连接建立后被调用
                         protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
                             // 使用给定的日志
-                            // todo 分析下源码
                             nioSocketChannel.pipeline().addLast(new LoggingHandler(LogLevel.DEBUG));
                             nioSocketChannel.pipeline().addLast(new StringEncoder());
                         }

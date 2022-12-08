@@ -7,6 +7,11 @@ import java.nio.ByteBuffer;
 import static io.netty.util.internal.MathUtil.isOutOfBounds;
 import static io.netty.util.internal.StringUtil.NEWLINE;
 
+/**
+ * 工具类分析 todo
+ * 貌似是参考了某个log
+ * LoggingHandler
+ */
 public class ByteBufferUtil {
     private static final char[] BYTE2CHAR = new char[256];
     private static final char[] HEXDUMP_TABLE = new char[256 * 4];
@@ -71,6 +76,7 @@ public class ByteBufferUtil {
 
     /**
      * 打印所有内容
+     *
      * @param buffer
      */
     public static void debugAll(ByteBuffer buffer) {
@@ -86,6 +92,7 @@ public class ByteBufferUtil {
 
     /**
      * 打印可读取内容
+     *
      * @param buffer
      */
     public static void debugRead(ByteBuffer buffer) {

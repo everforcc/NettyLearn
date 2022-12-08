@@ -17,7 +17,6 @@ import java.nio.ByteBuffer;
 public class Test8ByteBufferExam {
 
     public static void main(String[] args) {
-        // todo
         /*
 
          Hello,world\n

@@ -88,7 +88,6 @@ public class Test1MultiThreadServer {
         // 用队列来处理，在线程间传递消息
         private ConcurrentLinkedQueue<Runnable> queue = new ConcurrentLinkedQueue<>();
 
-        // todo
         // 线程对副本变量进行修改后，其他线程能够立刻同步刷新最新的数值。这个就是可见性。
         private volatile boolean start = false;
 

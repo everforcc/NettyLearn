@@ -33,7 +33,6 @@ public class Test2ByteBufferReadWrite {
         //System.out.println(buffer.get());
         buffer.flip();
         System.out.println(buffer.get());
-        // todo 分析工具类
         ByteBufferUtil.debugAll(buffer);
 
         // 指针会切换,但是原来位置3的数据不会被清零,因为下次写入会从这个位置覆盖

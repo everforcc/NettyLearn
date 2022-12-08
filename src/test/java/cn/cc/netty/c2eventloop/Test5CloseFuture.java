@@ -38,7 +38,6 @@ public class Test5CloseFuture {
                         @Override //[12] 在连接建立后被调用
                         protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
                             // 使用给定的日志
-                            // todo 分析下源码
                             nioSocketChannel.pipeline().addLast(new LoggingHandler(LogLevel.DEBUG));
                             nioSocketChannel.pipeline().addLast(new StringEncoder());
                         }
