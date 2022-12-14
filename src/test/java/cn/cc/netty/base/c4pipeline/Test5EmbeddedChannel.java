@@ -5,7 +5,7 @@
  * Copyright
  */
 
-package cn.cc.netty.c4pipeline;
+package cn.cc.netty.base.c4pipeline;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;

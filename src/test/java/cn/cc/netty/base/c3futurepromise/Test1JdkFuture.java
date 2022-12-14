@@ -5,7 +5,7 @@
  * Copyright
  */
 
-package cn.cc.netty.c3futurepromise;
+package cn.cc.netty.base.c3futurepromise;
 
 import lombok.extern.slf4j.Slf4j;
 

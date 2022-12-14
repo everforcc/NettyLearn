@@ -5,7 +5,7 @@
  * Copyright
  */
 
-package cn.cc.netty.c4pipeline;
+package cn.cc.netty.base.c2eventloop;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -23,15 +23,19 @@ import java.net.InetSocketAddress;
 import java.util.Scanner;
 
 /**
- * 2. 测试用的客户端
+ * 7. 关闭 所有线程
+ * NioEventLoopGroup
  */
 @Slf4j
-public class Test2Client {
+public class Test6NioEventLoopGroup {
 
     public static void main(String[] args) {
         try {
+            // 这个也需要关闭
+            NioEventLoopGroup nioEventLoopGroup = new NioEventLoopGroup();
+
             ChannelFuture channelFuture = new Bootstrap()
-                    .group(new NioEventLoopGroup())
+                    .group(nioEventLoopGroup)
                     .channel(NioSocketChannel.class)
                     .handler(new ChannelInitializer<NioSocketChannel>() {
                         @Override //[12] 在连接建立后被调用
@@ -72,16 +76,18 @@ public class Test2Client {
 //            log.debug("处理关闭后的操作");
 
             // 2. 异步处理关闭
-            closeFuture.addListener(new ChannelFutureListener() {
-                // 执行完关闭了,
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    log.debug("处理关闭后的操作");
-                }
+            // 执行完关闭了,
+            // 优化为 lambda 表达式
+            closeFuture.addListener((ChannelFutureListener) future -> {
+                log.debug("处理关闭后的操作");
+                // 优雅的停下来
+                nioEventLoopGroup.shutdownGracefully();
+                log.debug("优雅的退出");
             });
 
         } catch (Exception e) {
             e.printStackTrace();
+            // 如果异常了，资源也有都释放掉
         }
 
     }

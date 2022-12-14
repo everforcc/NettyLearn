@@ -5,7 +5,7 @@
  * Copyright
  */
 
-package cn.cc.netty.c1server;
+package cn.cc.netty.base.c1server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelHandlerContext;

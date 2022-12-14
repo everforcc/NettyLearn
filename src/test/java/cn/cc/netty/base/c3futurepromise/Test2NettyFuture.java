@@ -5,7 +5,7 @@
  * Copyright
  */
 
-package cn.cc.netty.c3futurepromise;
+package cn.cc.netty.base.c3futurepromise;
 
 import io.netty.channel.EventLoop;
 import io.netty.channel.nio.NioEventLoopGroup;

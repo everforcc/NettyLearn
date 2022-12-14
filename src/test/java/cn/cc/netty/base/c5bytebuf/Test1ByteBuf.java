@@ -5,7 +5,7 @@
  * Copyright
  */
 
-package cn.cc.netty.c5bytebuf;
+package cn.cc.netty.base.c5bytebuf;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;

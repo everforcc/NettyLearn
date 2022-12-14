@@ -5,7 +5,7 @@
  * Copyright
  */
 
-package cn.cc.netty.c2eventloop;
+package cn.cc.netty.base.c2eventloop;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
