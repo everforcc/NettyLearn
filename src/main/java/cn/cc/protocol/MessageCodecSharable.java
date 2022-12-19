@@ -7,6 +7,7 @@
 
 package cn.cc.protocol;
 
+import cn.cc.config.Config;
 import cn.cc.message.Message;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
@@ -14,10 +15,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.List;
 
 /**
@@ -36,8 +33,9 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
         // 2. 1字节版本
         out.writeByte(1);
         // 3. 序列化算法
-        //  0代表jdk，1代表json
-        out.writeByte(0);
+        // 0代表jdk，1代表json
+        // 从配置读取你要哪种算法
+        out.writeByte(Config.getSerializerAlgorithm().ordinal());
         // 4. 指令类型
         out.writeByte(msg.getMessageType());
         // 5. 请求序号 双工通信
@@ -50,10 +48,12 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
         // jdk序列化
         // 获取内容的字节数组
         // 将对象转成字节数组
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(bos);
-        oos.writeObject(msg);
-        byte[] bytes = bos.toByteArray();
+//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//        ObjectOutputStream oos = new ObjectOutputStream(bos);
+//        oos.writeObject(msg);
+
+        //byte[] bytes = Serializer.Algorithm.Java.serialize(msg);
+        byte[] bytes = Config.getSerializerAlgorithm().serialize(msg);
 
         // 7. 正文 长度
         out.writeInt(bytes.length);
@@ -86,8 +86,18 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
         // 7. 取出bytes
         in.readBytes(bytes, 0, length);
         if (0 == serializerType) {
-            ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
-            Message message = (Message) ois.readObject();
+//            ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
+//            Message message = (Message) ois.readObject();
+
+            // 2
+            //Message message = Serializer.Algorithm.Java.deserialize(Message.class, bytes);
+
+            // 找到反序列化算法
+            Serializer.Algorithm algorithm = Serializer.Algorithm.values()[serializerType];
+
+            Class<?> messageClass = Message.getMessageClass(messageType);
+            Message message = (Message) algorithm.deserialize(messageClass, bytes);
+
             // magicNum 被当作四个字节的int，其实是四个 byte
             log.debug("magicNum:{}, version:{}, serializerType:{}, messageType:{}, sequenceId:{}, length:{}", magicNum, version, serializerType, messageType, sequenceId, length);
             log.debug("message: {}", message);

@@ -17,7 +17,12 @@ public interface Serializer {
     // 序列化方法
     <T> byte[] serialize(T object);
 
+    /**
+     * todo 枚举实现接口
+     */
     enum Algorithm implements Serializer {
+
+        // google Protobuf 可以但是，很难结合
 
         Java {
             @Override
@@ -59,6 +64,7 @@ public interface Serializer {
             }
         }
     }
+
     class ClassCodec implements JsonSerializer<Class<?>>, JsonDeserializer<Class<?>> {
 
         @Override
