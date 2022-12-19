@@ -8,6 +8,9 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
+/**
+ * todo 为了只关注某一种类型继承自 SimpleChannelInboundHandler 为什么
+ */
 @ChannelHandler.Sharable
 public class LoginRequestMessageHandler extends SimpleChannelInboundHandler<LoginRequestMessage> {
     @Override

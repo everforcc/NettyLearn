@@ -28,7 +28,10 @@ public class ChatClient {
         NioEventLoopGroup group = new NioEventLoopGroup();
         LoggingHandler LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
         MessageCodecSharable MESSAGE_CODEC = new MessageCodecSharable();
+        // todo 看下是什么记录 api
+        // 倒计时锁
         CountDownLatch WAIT_FOR_LOGIN = new CountDownLatch(1);
+        // 是否已登录
         AtomicBoolean LOGIN = new AtomicBoolean(false);
         AtomicBoolean EXIT = new AtomicBoolean(false);
         Scanner scanner = new Scanner(System.in);
@@ -40,6 +43,7 @@ public class ChatClient {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(new ProcotolFrameDecoder());
+                    //ch.pipeline().addLast(LOGGING_HANDLER);
                     ch.pipeline().addLast(MESSAGE_CODEC);
                     // 用来判断是不是 读空闲时间过长，或 写空闲时间过长
                     // 3s 内如果没有向服务器写数据，会触发一个 IdleState#WRITER_IDLE 事件
@@ -48,20 +52,22 @@ public class ChatClient {
                     ch.pipeline().addLast(new ChannelDuplexHandler() {
                         // 用来触发特殊事件
                         @Override
-                        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception{
+                        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
                             IdleStateEvent event = (IdleStateEvent) evt;
                             // 触发了写空闲事件
                             if (event.state() == IdleState.WRITER_IDLE) {
-//                                log.debug("3s 没有写数据了，发送一个心跳包");
+                                //log.debug("3s 没有写数据了，发送一个心跳包");
                                 ctx.writeAndFlush(new PingMessage());
                             }
                         }
                     });
                     ch.pipeline().addLast("client handler", new ChannelInboundHandlerAdapter() {
-                        // 接收响应消息
+
+                        // 接收响应消息 事件
                         @Override
                         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-                            log.debug("msg: {}", msg);
+                            //log.debug("msg: {}", msg);
+
                             if ((msg instanceof LoginResponseMessage)) {
                                 LoginResponseMessage response = (LoginResponseMessage) msg;
                                 if (response.isSuccess()) {
@@ -71,6 +77,12 @@ public class ChatClient {
                                 // 唤醒 system in 线程
                                 WAIT_FOR_LOGIN.countDown();
                             }
+
+                            if (msg instanceof ChatResponseMessage) {
+                                ChatResponseMessage chatResponseMessage = (ChatResponseMessage) msg;
+                                log.debug("{} : {}", chatResponseMessage.getFrom(), chatResponseMessage.getContent());
+                            }
+
                         }
 
                         // 在连接建立后触发 active 事件
@@ -80,18 +92,19 @@ public class ChatClient {
                             new Thread(() -> {
                                 System.out.println("请输入用户名:");
                                 String username = scanner.nextLine();
-                                if(EXIT.get()){
+                                if (EXIT.get()) {
                                     return;
                                 }
                                 System.out.println("请输入密码:");
                                 String password = scanner.nextLine();
-                                if(EXIT.get()){
+                                if (EXIT.get()) {
                                     return;
                                 }
                                 // 构造消息对象
                                 LoginRequestMessage message = new LoginRequestMessage(username, password);
                                 System.out.println(message);
                                 // 发送消息
+                                // 从下网上找handler
                                 ctx.writeAndFlush(message);
                                 System.out.println("等待后续操作...");
                                 try {
@@ -101,6 +114,7 @@ public class ChatClient {
                                 }
                                 // 如果登录失败
                                 if (!LOGIN.get()) {
+                                    // channel也要关闭
                                     ctx.channel().close();
                                     return;
                                 }
@@ -120,11 +134,11 @@ public class ChatClient {
                                     } catch (Exception e) {
                                         break;
                                     }
-                                    if(EXIT.get()){
+                                    if (EXIT.get()) {
                                         return;
                                     }
                                     String[] s = command.split(" ");
-                                    switch (s[0]){
+                                    switch (s[0]) {
                                         case "send":
                                             ctx.writeAndFlush(new ChatRequestMessage(username, s[1], s[2]));
                                             break;
@@ -170,6 +184,7 @@ public class ChatClient {
                 }
             });
             Channel channel = bootstrap.connect("localhost", 8080).sync().channel();
+            // channel 关闭后，这里就会继续运行., finally 就会继续运行
             channel.closeFuture().sync();
         } catch (Exception e) {
             log.error("client error", e);

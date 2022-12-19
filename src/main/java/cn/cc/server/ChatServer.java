@@ -25,13 +25,19 @@ public class ChatServer {
         NioEventLoopGroup worker = new NioEventLoopGroup();
         LoggingHandler LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
         MessageCodecSharable MESSAGE_CODEC = new MessageCodecSharable();
+
+        // 业务 handler
+        // 登录 handler
         LoginRequestMessageHandler LOGIN_HANDLER = new LoginRequestMessageHandler();
         ChatRequestMessageHandler CHAT_HANDLER = new ChatRequestMessageHandler();
+        // 组
         GroupCreateRequestMessageHandler GROUP_CREATE_HANDLER = new GroupCreateRequestMessageHandler();
         GroupJoinRequestMessageHandler GROUP_JOIN_HANDLER = new GroupJoinRequestMessageHandler();
         GroupMembersRequestMessageHandler GROUP_MEMBERS_HANDLER = new GroupMembersRequestMessageHandler();
         GroupQuitRequestMessageHandler GROUP_QUIT_HANDLER = new GroupQuitRequestMessageHandler();
         GroupChatRequestMessageHandler GROUP_CHAT_HANDLER = new GroupChatRequestMessageHandler();
+
+        // 退出
         QuitHandler QUIT_HANDLER = new QuitHandler();
         try {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
@@ -41,6 +47,14 @@ public class ChatServer {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(new ProcotolFrameDecoder());
+                    // 优化前
+                    // LoginRequestMessageHandler
+//                    ch.pipeline().addLast(new SimpleChannelInboundHandler<LoginRequestMessage>() {
+//                        @Override
+//                        protected void channelRead0(ChannelHandlerContext ctx, LoginRequestMessage msg) throws Exception {
+//
+//                        }
+//                    });
                     ch.pipeline().addLast(LOGGING_HANDLER);
                     ch.pipeline().addLast(MESSAGE_CODEC);
                     // 用来判断是不是 读空闲时间过长，或 写空闲时间过长
@@ -50,7 +64,7 @@ public class ChatServer {
                     ch.pipeline().addLast(new ChannelDuplexHandler() {
                         // 用来触发特殊事件
                         @Override
-                        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception{
+                        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
                             IdleStateEvent event = (IdleStateEvent) evt;
                             // 触发了读空闲事件
                             if (event.state() == IdleState.READER_IDLE) {
@@ -66,6 +80,7 @@ public class ChatServer {
                     ch.pipeline().addLast(GROUP_MEMBERS_HANDLER);
                     ch.pipeline().addLast(GROUP_QUIT_HANDLER);
                     ch.pipeline().addLast(GROUP_CHAT_HANDLER);
+                    // 正确异常 退出
                     ch.pipeline().addLast(QUIT_HANDLER);
                 }
             });
