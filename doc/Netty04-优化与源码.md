@@ -92,8 +92,6 @@ enum SerializerAlgorithm implements Serializer {
 }
 ```
 
-
-
 增加配置类和配置文件
 
 ```java
@@ -126,15 +124,11 @@ public abstract class Config {
 }
 ```
 
-
-
 配置文件
 
 ```properties
 serializer.algorithm=Json
 ```
-
-
 
 修改编解码器
 
@@ -190,8 +184,6 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
     }
 }
 ```
-
-
 
 其中确定具体消息类型，可以根据 `消息类型字节` 获取到对应的 `消息 class`
 
@@ -251,15 +243,12 @@ public abstract class Message implements Serializable {
 }
 ```
 
-
-
 ### 1.2 参数调优
 
 #### 1）CONNECT_TIMEOUT_MILLIS
 
 * 属于 SocketChannal 参数
 * 用在客户端建立连接时，如果在指定毫秒内无法连接，会抛出 timeout 异常
-
 * SO_TIMEOUT 主要用在阻塞 IO，阻塞 IO 中 accept，read 等都是无限等待的，如果不希望永远阻塞，使用它调整超时时间
 
 ```java
@@ -297,7 +286,7 @@ public final void connect(
     if (connectTimeoutMillis > 0) {
         connectTimeoutFuture = eventLoop().schedule(new Runnable() {
             @Override
-            public void run() {                
+            public void run() {              
                 ChannelPromise connectPromise = AbstractNioChannel.this.connectPromise;
                 ConnectTimeoutException cause =
                     new ConnectTimeoutException("connection timed out: " + remoteAddress); // 断点2
@@ -310,8 +299,6 @@ public final void connect(
 	// ...
 }
 ```
-
-
 
 #### 2）SO_BACKLOG
 
@@ -348,20 +335,17 @@ s ->> s : accept()
 其中
 
 * 在 linux 2.2 之前，backlog 大小包括了两个队列的大小，在 2.2 之后，分别用下面两个参数来控制
-
 * sync queue - 半连接队列
+
   * 大小通过 /proc/sys/net/ipv4/tcp_max_syn_backlog 指定，在 `syncookies` 启用的情况下，逻辑上没有最大值限制，这个设置便被忽略
 * accept queue - 全连接队列
+
   * 其大小通过 /proc/sys/net/core/somaxconn 指定，在使用 listen 函数时，内核会根据传入的 backlog 参数与系统参数，取二者的较小值
   * 如果 accpet queue 队列满了，server 将发送一个拒绝连接的错误信息到 client
-
-
 
 netty 中
 
 可以通过  option(ChannelOption.SO_BACKLOG, 值) 来设置大小
-
-
 
 可以通过下面源码查看默认大小
 
@@ -374,11 +358,7 @@ public class DefaultServerSocketChannelConfig extends DefaultChannelConfig
 }
 ```
 
-
-
 课堂调试关键断点为：`io.netty.channel.nio.NioEventLoop#processSelectedKey`
-
-
 
 oio 中更容易说明，不用 debug 模式
 
@@ -428,43 +408,29 @@ Tue Apr 21 20:53:59 CST 2020 connecting timeout...
 java.net.SocketTimeoutException: connect timed out
 ```
 
-
-
-
-
 #### 3）ulimit -n
 
 * 属于操作系统参数
 
-
-
 #### 4）TCP_NODELAY
 
 * 属于 SocketChannal 参数
-
-
 
 #### 5）SO_SNDBUF & SO_RCVBUF
 
 * SO_SNDBUF 属于 SocketChannal 参数
 * SO_RCVBUF 既可用于 SocketChannal 参数，也可以用于 ServerSocketChannal 参数（建议设置到 ServerSocketChannal 上）
 
-
-
 #### 6）ALLOCATOR
 
 * 属于 SocketChannal 参数
 * 用来分配 ByteBuf， ctx.alloc()
-
-
 
 #### 7）RCVBUF_ALLOCATOR
 
 * 属于 SocketChannal 参数
 * 控制 netty 接收缓冲区大小
 * 负责入站数据的分配，决定入站缓冲区的大小（并可动态调整），统一采用 direct 直接内存，具体池化还是非池化由 allocator 决定
-
-
 
 ### 1.3 RPC 框架
 
@@ -568,7 +534,7 @@ public class RpcServer {
         NioEventLoopGroup worker = new NioEventLoopGroup();
         LoggingHandler LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
         MessageCodecSharable MESSAGE_CODEC = new MessageCodecSharable();
-        
+      
         // rpc 请求消息处理器，待实现
         RpcRequestMessageHandler RPC_HANDLER = new RpcRequestMessageHandler();
         try {
@@ -604,7 +570,7 @@ public class RpcClient {
         NioEventLoopGroup group = new NioEventLoopGroup();
         LoggingHandler LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
         MessageCodecSharable MESSAGE_CODEC = new MessageCodecSharable();
-        
+      
         // rpc 响应消息处理器，待实现
         RpcResponseMessageHandler RPC_HANDLER = new RpcResponseMessageHandler();
         try {
@@ -669,8 +635,6 @@ serializer.algorithm=Json
 cn.itcast.server.service.HelloService=cn.itcast.server.service.HelloServiceImpl
 ```
 
-
-
 #### 2）服务器 handler
 
 ```java
@@ -686,10 +650,10 @@ public class RpcRequestMessageHandler extends SimpleChannelInboundHandler<RpcReq
             // 获取真正的实现对象
             HelloService service = (HelloService)
                     ServicesFactory.getService(Class.forName(message.getInterfaceName()));
-            
+          
             // 获取要调用的方法
             Method method = service.getClass().getMethod(message.getMethodName(), message.getParameterTypes());
-            
+          
             // 调用方法
             Object invoke = method.invoke(service, message.getParameterValue());
             // 调用成功
@@ -704,10 +668,6 @@ public class RpcRequestMessageHandler extends SimpleChannelInboundHandler<RpcReq
     }
 }
 ```
-
-
-
-
 
 #### 3）客户端代码第一版
 
@@ -760,8 +720,6 @@ public class RpcClient {
 }
 ```
 
-
-
 #### 4）客户端 handler 第一版
 
 ```java
@@ -774,10 +732,6 @@ public class RpcResponseMessageHandler extends SimpleChannelInboundHandler<RpcRe
     }
 }
 ```
-
-
-
-
 
 #### 5）客户端代码 第二版
 
@@ -882,8 +836,6 @@ public class RpcClientManager {
 }
 ```
 
-
-
 #### 6）客户端 handler 第二版
 
 ```java
@@ -912,10 +864,6 @@ public class RpcResponseMessageHandler extends SimpleChannelInboundHandler<RpcRe
     }
 }
 ```
-
-
-
-
 
 ## 2. 源码分析
 
@@ -947,12 +895,6 @@ serverSocketChannel.bind(new InetSocketAddress(8080));
 //8 触发 channel active 事件，在 head 中关注 op_accept 事件
 selectionKey.interestOps(SelectionKey.OP_ACCEPT);
 ```
-
-
-
-
-
-
 
 入口 `io.netty.bootstrap.ServerBootstrap#bind`
 
@@ -1052,7 +994,7 @@ void init(Channel channel) throws Exception {
     synchronized (childAttrs) {
         currentChildAttrs = childAttrs.entrySet().toArray(newAttrArray(0));
     }
-	
+
     // 为 NioServerSocketChannel 添加初始化器
     p.addLast(new ChannelInitializer<Channel>() {
         @Override
@@ -1107,8 +1049,6 @@ public final void register(EventLoop eventLoop, final ChannelPromise promise) {
 }
 ```
 
-
-
 `io.netty.channel.AbstractChannel.AbstractUnsafe#register0`
 
 ```java
@@ -1129,7 +1069,7 @@ private void register0(ChannelPromise promise) {
         // 回调 3.2 io.netty.bootstrap.AbstractBootstrap#doBind0
         safeSetSuccess(promise);
         pipeline.fireChannelRegistered();
-        
+      
         // 对应 server socket channel 还未绑定，isActive 为 false
         if (isActive()) {
             if (firstRegistration) {
@@ -1274,8 +1214,6 @@ protected void doBeginRead() throws Exception {
 }
 ```
 
-
-
 ### 2.2 NioEventLoop 剖析
 
 NioEventLoop 线程不仅要处理 IO 事件，还要处理 Task（包括普通任务和定时任务），
@@ -1306,8 +1244,6 @@ public void execute(Runnable task) {
 }
 ```
 
-
-
 唤醒 select 阻塞线程`io.netty.channel.nio.NioEventLoop#wakeup`
 
 ```java
@@ -1318,8 +1254,6 @@ protected void wakeup(boolean inEventLoop) {
     }
 }
 ```
-
-
 
 启动 EventLoop 主循环 `io.netty.util.concurrent.SingleThreadEventExecutor#doStartThread`
 
@@ -1351,8 +1285,6 @@ private void doStartThread() {
 }
 ```
 
-
-
 `io.netty.channel.nio.NioEventLoop#run` 主要任务是执行死循环，不断看有没有新任务，有没有 IO 事件
 
 ```java
@@ -1373,7 +1305,7 @@ protected void run() {
                         // 因为 IO 线程和提交任务线程都有可能执行 wakeup，而 wakeup 属于比较昂贵的操作，因此使用了一个原子布尔对象 wakenUp，它取值为 true 时，表示该由当前线程唤醒
                         // 进行 select 阻塞，并设置唤醒状态为 false
                         boolean oldWakenUp = wakenUp.getAndSet(false);
-                        
+                      
                         // 如果在这个位置，非 EventLoop 线程抢先将 wakenUp 置为 true，并 wakeup
                         // 下面的 select 方法不会阻塞
                         // 等 runAllTasks 处理完成后，到再循环进来这个阶段新增的任务会不会及时执行呢?
@@ -1403,7 +1335,7 @@ protected void run() {
                     // ioRatio 为 100 时，总是运行完所有非 IO 任务
                     runAllTasks();
                 }
-            } else {                
+            } else {              
                 final long ioStartTime = System.nanoTime();
                 try {
                     processSelectedKeys();
@@ -1431,8 +1363,6 @@ protected void run() {
 }
 ```
 
-
-
 #### ⚠️ 注意
 
 > 这里有个费解的地方就是 wakeup，它既可以由提交任务的线程来调用（比较好理解），也可以由 EventLoop 线程来调用（比较费解），这里要知道 wakeup 方法的效果：
@@ -1440,13 +1370,9 @@ protected void run() {
 > * 由非 EventLoop 线程调用，会唤醒当前在执行 select 阻塞的 EventLoop 线程
 > * 由 EventLoop 自己调用，会本次的 wakeup 会取消下一次的 select 操作
 
-
-
 参考下图
 
 <img src="img/0032.png"  />
-
-
 
 `io.netty.channel.nio.NioEventLoop#select`
 
@@ -1524,8 +1450,6 @@ private void select(boolean oldWakenUp) throws IOException {
 }
 ```
 
-
-
 处理 keys `io.netty.channel.nio.NioEventLoop#processSelectedKeys`
 
 ```java
@@ -1539,8 +1463,6 @@ private void processSelectedKeys() {
     }
 }
 ```
-
-
 
 `io.netty.channel.nio.NioEventLoop#processSelectedKey`
 
@@ -1581,8 +1503,6 @@ private void processSelectedKey(SelectionKey k, AbstractNioChannel ch) {
 }
 ```
 
-
-
 ### 2.3 accept 剖析
 
 nio 中如下代码，在 netty 中的流程
@@ -1592,29 +1512,23 @@ nio 中如下代码，在 netty 中的流程
 selector.select();
 
 Iterator<SelectionKey> iter = selector.selectedKeys().iterator();
-while (iter.hasNext()) {    
+while (iter.hasNext()) {  
     //2 拿到一个事件
     SelectionKey key = iter.next();
-    
+  
     //3 如果是 accept 事件
     if (key.isAcceptable()) {
-        
+      
         //4 执行 accept
         SocketChannel channel = serverSocketChannel.accept();
         channel.configureBlocking(false);
-        
+      
         //5 关注 read 事件
         channel.register(selector, SelectionKey.OP_READ);
     }
     // ...
 }
 ```
-
-
-
-
-
-
 
 先来看可接入事件处理（accept）
 
@@ -1624,7 +1538,7 @@ while (iter.hasNext()) {
 public void read() {
     assert eventLoop().inEventLoop();
     final ChannelConfig config = config();
-    final ChannelPipeline pipeline = pipeline();    
+    final ChannelPipeline pipeline = pipeline();  
     final RecvByteBufAllocator.Handle allocHandle = unsafe().recvBufAllocHandle();
     allocHandle.reset(config);
 
@@ -1681,8 +1595,6 @@ public void read() {
 }
 ```
 
-
-
 关键代码 `io.netty.bootstrap.ServerBootstrap.ServerBootstrapAcceptor#channelRead`
 
 ```java
@@ -1715,8 +1627,6 @@ public void channelRead(ChannelHandlerContext ctx, Object msg) {
     }
 }
 ```
-
-
 
 又回到了熟悉的 `io.netty.channel.AbstractChannel.AbstractUnsafe#register`  方法
 
@@ -1759,14 +1669,14 @@ private void register0(ChannelPromise promise) {
         doRegister();
         neverRegistered = false;
         registered = true;
-		
+	
         // 执行初始化器，执行前 pipeline 中只有 head -> 初始化器 -> tail
         pipeline.invokeHandlerAddedIfNeeded();
         // 执行后就是 head -> logging handler -> my handler -> tail
 
         safeSetSuccess(promise);
         pipeline.fireChannelRegistered();
-        
+      
         if (isActive()) {
             if (firstRegistration) {
                 // 触发 pipeline 上 active 事件
@@ -1782,8 +1692,6 @@ private void register0(ChannelPromise promise) {
     }
 }
 ```
-
-
 
 回到了熟悉的代码 `io.netty.channel.DefaultChannelPipeline.HeadContext#channelActive`
 
@@ -1814,8 +1722,6 @@ protected void doBeginRead() throws Exception {
     }
 }
 ```
-
-
 
 ### 2.4 read 剖析
 
@@ -1878,8 +1784,6 @@ public final void read() {
 }
 ```
 
-
-
 `io.netty.channel.DefaultMaxMessagesRecvByteBufAllocator.MaxMessageHandle#continueReading(io.netty.util.UncheckedBooleanSupplier)`
 
 ```java
@@ -1896,6 +1800,3 @@ public boolean continueReading(UncheckedBooleanSupplier maybeMoreDataSupplier) {
            totalBytesRead > 0;
 }
 ```
-
-
-
