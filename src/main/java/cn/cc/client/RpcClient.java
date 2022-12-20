@@ -1,11 +1,13 @@
 package cn.cc.client;
 
+import cn.cc.client.handler.RpcResponseMessageHandler;
 import cn.cc.message.RpcRequestMessage;
 import cn.cc.protocol.MessageCodecSharable;
 import cn.cc.protocol.ProcotolFrameDecoder;
-import cn.cc.client.handler.RpcResponseMessageHandler;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -42,9 +44,12 @@ public class RpcClient {
                     String.class,
                     new Class[]{String.class},
                     new Object[]{"张三"}
-            )).addListener(promise -> {
-                if (!promise.isSuccess()) {
-                    Throwable cause = promise.cause();
+            ));
+            // 在这里判断是否失败
+            // 两种方式 sync同步，addListener异步
+            future.addListener(listener -> {
+                if (!listener.isSuccess()) {
+                    Throwable cause = listener.cause();
                     log.error("error", cause);
                 }
             });

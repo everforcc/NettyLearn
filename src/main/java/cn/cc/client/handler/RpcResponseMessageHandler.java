@@ -20,7 +20,7 @@ public class RpcResponseMessageHandler extends SimpleChannelInboundHandler<RpcRe
     @Override
 
     protected void channelRead0(ChannelHandlerContext ctx, RpcResponseMessage msg) throws Exception {
-        log.debug("{}", msg);
+        log.debug("msg: {}", msg);
         // 拿到空的 promise
         Promise<Object> promise = PROMISES.remove(msg.getSequenceId());
         if (promise != null) {

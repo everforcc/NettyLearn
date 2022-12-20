@@ -54,6 +54,7 @@ public interface Serializer {
                 Gson gson = new GsonBuilder().registerTypeAdapter(Class.class, new ClassCodec()).create();
                 String json = new String(bytes, StandardCharsets.UTF_8);
                 return gson.fromJson(json, clazz);
+                //new Gson().fromJson(json,clazz);
             }
 
             @Override
@@ -61,10 +62,15 @@ public interface Serializer {
                 Gson gson = new GsonBuilder().registerTypeAdapter(Class.class, new ClassCodec()).create();
                 String json = gson.toJson(object);
                 return json.getBytes(StandardCharsets.UTF_8);
+//                String json = new Gson().toJson(object);
+//                json.getBytes(StandardCharsets.UTF_8);
             }
         }
     }
 
+    /**
+     * Gson 转换器
+     */
     class ClassCodec implements JsonSerializer<Class<?>>, JsonDeserializer<Class<?>> {
 
         @Override

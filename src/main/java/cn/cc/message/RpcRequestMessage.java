@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 /**
- * @author yihang
+ * rpc 请求参数
  */
 @Getter
 @ToString(callSuper = true)

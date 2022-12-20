@@ -2,7 +2,6 @@ package cn.cc.server.handler;
 
 import cn.cc.message.RpcRequestMessage;
 import cn.cc.message.RpcResponseMessage;
-import cn.cc.server.service.HelloService;
 import cn.cc.server.service.ServicesFactory;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -21,8 +20,9 @@ public class RpcRequestMessageHandler extends SimpleChannelInboundHandler<RpcReq
         RpcResponseMessage response = new RpcResponseMessage();
         response.setSequenceId(message.getSequenceId());
         try {
-            HelloService service = (HelloService)
-                    ServicesFactory.getService(Class.forName(message.getInterfaceName()));
+//            HelloService service = (HelloService)
+//                    ServicesFactory.getService(Class.forName(message.getInterfaceName()));
+            Object service = ServicesFactory.getService(Class.forName(message.getInterfaceName()));
             Method method = service.getClass().getMethod(message.getMethodName(), message.getParameterTypes());
             Object invoke = method.invoke(service, message.getParameterValue());
             response.setReturnValue(invoke);
@@ -43,8 +43,12 @@ public class RpcRequestMessageHandler extends SimpleChannelInboundHandler<RpcReq
                 new Class[]{String.class},
                 new Object[]{"张三"}
         );
-        HelloService service = (HelloService)
-                ServicesFactory.getService(Class.forName(message.getInterfaceName()));
+//        HelloService service = (HelloService)
+//                ServicesFactory.getService(Class.forName(message.getInterfaceName()));
+
+        // 因为是反射获得的对象，不需要强转也可以
+        Object service = ServicesFactory.getService(Class.forName(message.getInterfaceName()));
+
         Method method = service.getClass().getMethod(message.getMethodName(), message.getParameterTypes());
         Object invoke = method.invoke(service, message.getParameterValue());
         System.out.println(invoke);
