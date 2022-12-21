@@ -85,7 +85,7 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
         byte[] bytes = new byte[length];
         // 7. 取出bytes
         in.readBytes(bytes, 0, length);
-        if (0 == serializerType) {
+        //if (0 == serializerType) {
 //            ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
 //            Message message = (Message) ois.readObject();
 
@@ -103,6 +103,6 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
             log.debug("message: {}", message);
             // netty约定，这样才能传给下一个
             out.add(message);
-        }
+        //}
     }
 }

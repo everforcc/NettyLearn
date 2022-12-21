@@ -2,6 +2,7 @@ package cn.cc.server.handler;
 
 import cn.cc.message.RpcRequestMessage;
 import cn.cc.message.RpcResponseMessage;
+import cn.cc.server.service.HelloService;
 import cn.cc.server.service.ServicesFactory;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -17,7 +18,9 @@ public class RpcRequestMessageHandler extends SimpleChannelInboundHandler<RpcReq
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcRequestMessage message) {
+        log.debug("进入远程调用");
         RpcResponseMessage response = new RpcResponseMessage();
+        // 请求相应要对上
         response.setSequenceId(message.getSequenceId());
         try {
 //            HelloService service = (HelloService)
@@ -25,10 +28,12 @@ public class RpcRequestMessageHandler extends SimpleChannelInboundHandler<RpcReq
             Object service = ServicesFactory.getService(Class.forName(message.getInterfaceName()));
             Method method = service.getClass().getMethod(message.getMethodName(), message.getParameterTypes());
             Object invoke = method.invoke(service, message.getParameterValue());
+            log.debug("远程调用结果: {}", invoke);
             response.setReturnValue(invoke);
         } catch (Exception e) {
             e.printStackTrace();
             String msg = e.getCause().getMessage();
+            log.debug("远程调用出错: {}", msg);
             response.setExceptionValue(new Exception("远程调用出错:" + msg));
         }
         ctx.writeAndFlush(response);

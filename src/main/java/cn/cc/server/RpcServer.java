@@ -18,6 +18,7 @@ public class RpcServer {
     public static void main(String[] args) {
         NioEventLoopGroup boss = new NioEventLoopGroup();
         NioEventLoopGroup worker = new NioEventLoopGroup();
+        // 必须有日志，有问题可以从日志debug
         LoggingHandler LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
         MessageCodecSharable MESSAGE_CODEC = new MessageCodecSharable();
         RpcRequestMessageHandler RPC_HANDLER = new RpcRequestMessageHandler();
@@ -30,6 +31,7 @@ public class RpcServer {
                 protected void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(new ProcotolFrameDecoder());
                     ch.pipeline().addLast(LOGGING_HANDLER);
+                    // 如果没异常也没进，就要从打印日志分析走到哪一步了
                     ch.pipeline().addLast(MESSAGE_CODEC);
                     ch.pipeline().addLast(RPC_HANDLER);
                 }
