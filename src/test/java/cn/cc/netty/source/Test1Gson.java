@@ -2,7 +2,7 @@ package cn.cc.netty.source;
 
 import com.google.gson.Gson;
 
-public class TestGson {
+public class Test1Gson {
     public static void main(String[] args) {
 
         // java.lang.UnsupportedOperationException: Attempted to serialize java.lang.Class: java.lang.String. Forgot to register a type adapter?
